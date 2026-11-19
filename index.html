@@ -545,6 +545,10 @@ input[type=checkbox]{accent-color:var(--accent)}
   nav#nav,#toast,#ov .box,.plv-bar{background:var(--glass-tint-strong)} .card{background:var(--surface)}}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
 
+/* ---------- круглые вкладыши ---------- */
+.pv.ins-drag{touch-action:none;cursor:grab}.pv.ins-drag:active{cursor:grabbing}
+.ins-pos{border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 0 14px;padding:12px 0}
+.ins-bg input[type=color]{width:64px;height:40px;padding:2px;border:0;border-radius:10px;background:none;cursor:pointer}
 /* ---------- Строительство: разделы работ, подразделы, блок «Работы по запросу» ---------- */
 .cn-presets{margin-top:12px}
 .cn-lib{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px;margin:12px 0 10px}
@@ -5010,6 +5014,131 @@ function bindCN(){
     setSt($('#cn-st'),`Готово: ${pick.length} ${pick.length===1?'раздел':pick.length<5?'раздела':'разделов'} работ, стиль «${(skinOf(p.style)||{n:'—'}).n}». Стиль можно сменить слева.`,'ok')};
 }
 const _initUi2CN=initUi2;initUi2=function(){_initUi2CN();bindCN()};
+
+/* ====================== Круглые вкладыши ⌀ 90 и ⌀ 260 мм: своё изображение с позиционированием ====================== */
+const INS_FORMS={d90:{n:'⌀ 90 мм',d:90},d260:{n:'⌀ 260 мм',d:260}};
+const insForm=t=>INS_FORMS[t.iform]||INS_FORMS.d90;
+const INS_GLUE=12; /* ширина зоны склейки у ⌀ 260 на двух листах A4, мм */
+PRODUCTS.insert={n:'Круглый вкладыш',short:'Вкладыш',sizeText:'⌀ 90 и 260 мм',bleed:0,paper:'matte',styles:nxStyles(),
+  dims:t=>{const d=insForm(t).d;return{w:d,h:d}},
+  /* половины ⌀ 260 обрезает сам рисунок, круг для них не нужен */
+  shape:(t,w,h,g)=>t._half?`M-20 -20H${n3(w+20)}V${n3(h+20)}H-20Z`:circ(w/2,h/2,w/2+g),
+  fields:[{k:'iform',l:'Диаметр',t:'seg',opts:Object.entries(INS_FORMS).map(([v,f])=>({v,n:f.n})),def:'d90'},
+    {k:'iprint',l:'Печать ⌀ 260 мм',t:'seg',opts:[{v:'a4x2',n:'2 листа A4 со склейкой'},{v:'a3',n:'Лист A3 (копицентр)'}],def:'a4x2'},
+    {k:'ipic',l:'Своё изображение — заполняет весь круг',t:'media'},
+    {k:'itext',l:'Надписи',t:'seg',opts:[{v:'on',n:'С надписью'},{v:'off',n:'Только изображение'}],def:'on'},
+    {k:'ititle',l:'Надпись',t:'text',max:40,def:'Сделано с любовью'},{k:'isub',l:'Вторая строка',t:'text',max:60,def:'ручная работа'}],
+  note:'⌀ 90 мм — 6 вкладышей на листе A4, вырезайте по пунктирному кругу. ⌀ 260 мм больше листа A4: печатается половинами на двух листах A4 со склейкой или целиком на листе A3 в копицентре.'};
+NEW_PRODUCTS.push('insert');PROD_ORDER.push('insert');
+{const _it=itemTitle;itemTitle=function(t){return t.product==='insert'?`${t.ititle||'Вкладыш'} · ${insForm(t).n}`:_it(t)}}
+
+const insPos=t=>{const p=t.ipos&&typeof t.ipos==='object'?t.ipos:{};return{x:clamp(+p.x||0,-1,1),y:clamp(+p.y||0,-1,1),s:clamp(+p.s||1,.1,6),r:(((+p.r||0)%360)+540)%360-180}};
+/* масштаб 1 — изображение закрывает весь круг без полей */
+function insGeo(t,w,h){const m=mediaGet(t.ipic);if(!m)return null;const P=insPos(t),base=Math.max(w/m.w,h/m.h),iw=m.w*base*P.s,ih=m.h*base*P.s;
+  return{m,P,base,iw,ih,cx:w/2+P.x*w,cy:h/2+P.y*h,dpi:Math.round(25.4/(base*P.s))}}
+function renderInsert(t,o,w,h,b,sk){
+  const c=skinCtx(t,w,h,b),p=palOf(sk,t),F=skinFonts(sk,t),R=w/2,v=k=>fv(t,k,o),MUTE=sk.dark?'#6b6b78':'#BDB8AE',dk=!!sk.dark,out=[],G=insGeo(t,w,h);
+  const textOn=(t.itext||'on')!=='off';
+  if(G){out.push(bgRect(c,w,h,b,/^#[0-9a-f]{6}$/i.test(t.ibg||'')?t.ibg:'#FFFFFF'));
+    out.push(`<image id="insert-image" href="${mediaHref(t.ipic)}" x="${n3(G.cx-G.iw/2)}" y="${n3(G.cy-G.ih/2)}" width="${n3(G.iw)}" height="${n3(G.ih)}" preserveAspectRatio="none"${G.P.r?` transform="rotate(${n3(G.P.r)} ${n3(G.cx)} ${n3(G.cy)})"`:''}/>`)}
+  else{const D=skinDeco(sk,c,t);out.push(D.under);
+    const sw=Math.max(.3,w*.006);out.push(`<circle cx="${n3(R)}" cy="${n3(R)}" r="${n3(R*.9)}" fill="none" stroke="${p.acc}" stroke-width="${n3(sw)}"/><circle cx="${n3(R)}" cy="${n3(R)}" r="${n3(R*.86)}" fill="none" stroke="${p.acc}" stroke-width="${n3(sw*.35)}"/>`);
+    if(D.over)out.push(D.over)}
+  if(textOn){const ti=v('ititle'),su=v('isub'),tS0=fT(w*.105),maxW=w*.66;
+    const T=ti.t?fitBlock(capsOf(sk,ti.t),tS0,tS0*.45,2,maxW,F.fd,F.fdw):{size:tS0,lines:[]},sS=fB(w*.042),lh=T.size*1.08;
+    if(G){/* надпись поверх изображения — на полупрозрачной полосе */const bh=T.lines.length*lh+(su.t?sS*1.9:0)+w*.06,by=h*.7-bh/2;
+      out.push(`<defs><clipPath id="IB${++gidN}"><path d="${circ(R,R,R+1)}"/></clipPath></defs>`,rect(-b,by,w+2*b,bh,p.bg,` fill-opacity=".86" clip-path="url(#IB${gidN})"`));
+      let y=by+w*.03+T.size*.82;out.push(txLines('title',T.lines,R,y,T.size,lh,{fam:F.fd,wt:F.fdw,fill:ti.m?MUTE:p.ink,a:'c',ls:sk.lsd}));
+      if(su.t)out.push(tx(R,y+(T.lines.length-1)*lh+sS*1.75,sS,su.t,{fam:F.fb,fill:su.m?MUTE:p.sub,a:'c',id:'sub'}))}
+    else{/* композиция по центру: логотип или имя, надпись, линия, подпись */
+      const L=logoSVG(t,dk,R-w*.22,h*.17,w*.44,h*.13,'c','c'),B=brand();
+      if(L)out.push(L.svg);else if(B.name){const s=fitSize(B.name.toUpperCase(),fB(w*.04),fB(w*.025),w*.5,F.fb,600,0,.14);out.push(tx(R,h*.27,s,B.name.toUpperCase(),{fam:F.fb,wt:600,fill:p.acc,ls:.14,a:'c',id:'brand'}))}
+      const tot=T.lines.length*lh,y0=h*.5-tot/2+T.size*.78;
+      out.push(txLines('title',T.lines,R,y0,T.size,lh,{fam:F.fd,wt:F.fdw,fill:ti.m?MUTE:p.ink,a:'c',ls:sk.lsd}));
+      const ry=y0+(T.lines.length-1)*lh+T.size*.55;out.push(rect(R-w*.06,ry,w*.12,Math.max(.25,w*.004),p.acc));
+      if(su.t){const s=fitSize(su.t,sS,sS*.6,w*.62,F.fb,400);out.push(tx(R,ry+s*2.1,s,su.t,{fam:F.fb,fill:su.m?MUTE:p.sub,a:'c',id:'sub'}))}}}
+  const body=out.join('');
+  return t._half?insHalf(t,w,h,body):body;
+}
+/* половина вкладыша ⌀ 260 для печати на A4: верхняя с зоной склейки, нижняя с прямым резом по диаметру */
+function insHalf(t,w,h,inner){const R=w/2,O=INS_GLUE,top=t._half==='top',ci='IH'+(++gidN),cc='IC'+gidN,ch=Math.sqrt(R*R-O*O),y0=top?-2:R,y1=top?R+O:h+2;
+  const dash=' fill="none" stroke="#8e8e93" stroke-width=".25" stroke-dasharray="1.2 1.2"';
+  let g=`<defs><clipPath id="${ci}"><rect x="-2" y="${n3(y0)}" width="${n3(w+4)}" height="${n3(y1-y0)}"/></clipPath><clipPath id="${cc}"><path d="${circ(R,R,R+1)}"/></clipPath></defs><g clip-path="url(#${ci})"><g clip-path="url(#${cc})">${inner}`;
+  if(top){const hz=[];for(let x=-O;x<w+O;x+=3)hz.push(`M${n3(x)} ${n3(R+O)}L${n3(x+O)} ${n3(R)}`);
+    g+=rect(-2,R,w+4,O,'#FFFFFF',' fill-opacity=".65"')+`<path d="${hz.join('')}" stroke="#8e8e93" stroke-width=".2"/>`+`<path d="M-2 ${n3(R)}H${n3(w+2)}" stroke="#000000" stroke-width=".3"/>`
+      +rect(R-48,R+O/2-2.6,96,5,'#FFFFFF')+tx(R,R+O/2+1.1,3,'ЗОНА СКЛЕЙКИ — сюда ляжет нижняя половина',{wt:700,fill:'#6e6e73',a:'c'})}
+  g+=`</g><path d="${circ(R,R,R)}"${dash}/></g>`;
+  const yc=top?R+O:R,hw=top?ch:R;g+=`<path d="M${n3(R-hw)} ${n3(yc)}H${n3(R+hw)}"${dash}/>`;
+  g+=`<path d="M-7 ${n3(R)}H-1.5M${n3(w+1.5)} ${n3(R)}H${n3(w+7)}" stroke="#000000" stroke-width=".3"/>`;
+  g+=top?tx(0,-3,3.2,'Вкладыш ⌀ 260 мм · лист 1 из 2 · верхняя половина. Вырежьте по пунктиру.',{fill:'#6e6e73'})
+    :tx(0,h+5.5,3.2,'Лист 2 из 2 · нижняя половина. Вырежьте по пунктиру и по прямой, наложите на зону склейки до чёрной линии.',{fill:'#6e6e73'});
+  return g}
+{const _rn=renderNew;renderNew=function(t,o,w,h,b,sk){return t.product==='insert'?renderInsert(t,o,w,h,b,sk):_rn(t,o,w,h,b,sk)}}
+
+/* ⌀ 260 не помещается на A4: две половины на A4 альбомной или целый круг на A3 */
+{const _lp=layoutPages;layoutPages=function(items){const isBig=i=>i.product==='insert'&&i.w>200,big=items.filter(isBig),r=_lp(items.filter(i=>!isBig(i)));if(!big.length)return r;
+  const a3=big.filter(i=>i.tag.iprint==='a3'),a4=big.filter(i=>i.tag.iprint!=='a3');
+  for(const it of a4){const R=it.w/2,x=(297-it.w)/2;
+    r.pages.push({sw:297,sh:210,own:true,pl:[{tag:Object.assign({},it.tag,{_half:'top'}),w:it.w,h:it.h,b:9,x,y:(210-(R+INS_GLUE))/2}]});
+    r.pages.push({sw:297,sh:210,own:true,pl:[{tag:Object.assign({},it.tag,{_half:'bot'}),w:it.w,h:it.h,b:9,x,y:(210-R)/2-R}]})}
+  if(a4.length){r.summary.push({label:'Вкладыш ⌀260',per:'½',sheets:a4.length*2,count:a4.length,paper:'matte',mode:'2 листа A4, склейка'});
+    r.warns.push('Вкладыш ⌀ 260 мм печатается половинами на двух листах A4 (альбомная ориентация). Вырежьте обе половины по пунктиру, нижнюю — ещё и по прямой линии, наложите её на зону склейки верхней точно по чёрной линии и приклейте.')}
+  for(const it of a3)r.pages.push({sw:297,sh:420,pl:[{tag:it.tag,w:it.w,h:it.h,b:0,x:(297-it.w)/2,y:(420-it.h)/2}]});
+  if(a3.length){r.summary.push({label:'Вкладыш ⌀260',per:1,sheets:a3.length,count:a3.length,paper:'matte',mode:'лист A3'});
+    r.warns.push('Вкладыш ⌀ 260 мм на листе A3: Epson L3260 печатает только A4. Сохраните PDF и распечатайте в копицентре в масштабе 100%, без «подгонки под лист».')}
+  return r}}
+
+/* загрузка: для вкладыша — крупнее, чтобы ⌀ 260 мм печатался чётко; позиция сбрасывается под новое фото */
+{const _am=addMedia;addMedia=async function(file,kind){
+  if(!(kind==='photo'&&cur&&cur.product==='insert'))return _am(file,kind);
+  const r=await shrinkImage(file,insForm(cur).d>200?2400:1400,'image/jpeg'),id='m'+uid();let src=r.dataUrl,assetId=null;
+  if(ASSETS&&r.blob){try{const a=await ASSETS.upload(r.blob);if(a&&a.url){src=a.url;assetId=a.id;MCACHE[a.url]=r.dataUrl}}catch(e){}}
+  store.media[id]={src,w:r.w,h:r.h,kind:'photo',assetId};delete cur.ipos;cur.itext='off';persist();return id}}
+
+/* ---------- панель положения изображения ---------- */
+function insDpiText(G){return G?`≈ ${G.dpi} dpi · ${G.dpi>=200?'чётко':G.dpi>=140?'нормально':'мало пикселей, будет размыто'}`:''}
+function insPanelHTML(){const G=insGeo(cur,dims(cur).w,dims(cur).h);if(!G)return'';const P=G.P,sl=(k,l,min,max,val,unit)=>`<label class="f"><span>${l} <b id="ins-${k}-v">${val}${unit}</b></span><input type="range" data-ins-k="${k}" min="${min}" max="${max}" step="1" value="${val}"></label>`;
+  return `<div class="ins-pos" id="ins-pos">
+    <div class="row-h"><span class="lbl" style="margin:0">Положение изображения</span><span class="meta" id="ins-dpi">${insDpiText(G)}</span></div>
+    <p class="hint" style="margin:4px 0 8px">Двигайте изображение прямо на превью — пальцем или мышью. Масштаб: ползунок, щипок двумя пальцами или колёсико с Ctrl.</p>
+    <div class="fs-grid">${sl('s','Масштаб',10,600,Math.round(P.s*100),'%')}${sl('r','Поворот',-180,180,Math.round(P.r),'°')}${sl('x','Сдвиг влево-вправо',-100,100,Math.round(P.x*100),'%')}${sl('y','Сдвиг вверх-вниз',-100,100,Math.round(P.y*100),'%')}</div>
+    <div class="btns" style="margin-top:8px"><button class="btn sm" type="button" data-ins="center">По центру</button><button class="btn sm" type="button" data-ins="cover">Заполнить круг</button><button class="btn sm" type="button" data-ins="fit">Вписать целиком</button><button class="btn sm" type="button" data-ins="rot">Повернуть на 90°</button><button class="btn sm ghost" type="button" data-ins="reset">Сбросить</button></div>
+    <label class="f ins-bg" style="margin-top:10px"><span>Фон там, где нет изображения</span><input type="color" id="ins-bg" value="${/^#[0-9a-f]{6}$/i.test(cur.ibg||'')?cur.ibg:'#ffffff'}"></label></div>`}
+function insSyncUI(){const G=insGeo(cur,dims(cur).w,dims(cur).h);if(!G||!$('#ins-pos'))return;const P=G.P,vals={s:[Math.round(P.s*100),'%'],r:[Math.round(P.r),'°'],x:[Math.round(P.x*100),'%'],y:[Math.round(P.y*100),'%']};
+  for(const k in vals){const el=$(`[data-ins-k="${k}"]`);if(el&&document.activeElement!==el)el.value=vals[k][0];const lb=$('#ins-'+k+'-v');if(lb)lb.textContent=vals[k][0]+vals[k][1]}
+  $('#ins-dpi').textContent=insDpiText(G)}
+function insSetPos(o,final){const P=Object.assign(insPos(cur),o);P.x=clamp(P.x,-1,1);P.y=clamp(P.y,-1,1);P.s=clamp(P.s,.1,6);P.r=(((P.r%360)+540)%360)-180;
+  cur.ipos={x:n3(P.x),y:n3(P.y),s:n3(P.s),r:n3(P.r)};insSyncUI();if(final){refreshEditor();renderGallery()}else previewFast()}
+function insUpdateFormUI(){const w=$('#fields [data-seg="iprint"]');if(w)w.closest('.f').hidden=insForm(cur).d<200}
+{const _rf=renderFields;renderFields=function(){_rf();if(cur.product!=='insert')return;insUpdateFormUI();const html=insPanelHTML();if(!html)return;
+  const mf=$('#fields [data-mup="ipic"]'),host=mf?mf.closest('.f'):null;if(host)host.insertAdjacentHTML('afterend',html);else $('#fields').insertAdjacentHTML('beforeend',html)}}
+{const _rp=renderPreview;renderPreview=function(){_rp();const on=cur&&cur.product==='insert'&&!!mediaGet(cur.ipic);$('#pv').classList.toggle('ins-drag',on)}}
+function bindInsert(){
+  const F=$('#fields');
+  F.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.insK;if(k){const v=+e.target.value;insSetPos(k==='r'?{r:v}:{[k]:v/100})}
+    if(e.target.id==='ins-bg'){cur.ibg=e.target.value;previewFast()}});
+  F.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.insK)insSetPos({},true);if(e.target.id==='ins-bg')refreshEditor()});
+  F.addEventListener('click',e=>{const sg=e.target.closest('[data-seg="iform"] button');if(sg){insUpdateFormUI();insSyncUI();return}
+    const b=e.target.closest('[data-ins]');if(!b)return;const G=insGeo(cur,dims(cur).w,dims(cur).h);if(!G)return;const a=b.dataset.ins;
+    if(a==='center')insSetPos({x:0,y:0},true);
+    else if(a==='cover')insSetPos({x:0,y:0,s:1},true);
+    else if(a==='fit'){const d=dims(cur).w;insSetPos({x:0,y:0,s:d/(G.base*Math.hypot(G.m.w,G.m.h))},true)}
+    else if(a==='rot')insSetPos({r:G.P.r+90},true);
+    else if(a==='reset'){delete cur.ipos;insSyncUI();refreshEditor();renderGallery()}});
+  /* перетаскивание, щипок и колёсико на превью */
+  const pv=$('#pv'),pts=new Map();let drag=null,pinch=null;
+  const active=e=>cur&&cur.product==='insert'&&mediaGet(cur.ipic)&&!e.target.closest('#lgbox,.lgspot');
+  const box=()=>{const s=$('svg',pv);return(s||pv).getBoundingClientRect()};
+  pv.addEventListener('pointerdown',e=>{if(!active(e))return;e.preventDefault();pts.set(e.pointerId,{x:e.clientX,y:e.clientY});pv.setPointerCapture(e.pointerId);
+    const P=insPos(cur);if(pts.size===2){const [a,c]=[...pts.values()];pinch={d:Math.hypot(a.x-c.x,a.y-c.y)||1,s:P.s};drag=null}else{drag={x:e.clientX,y:e.clientY,px:P.x,py:P.y};pinch=null}});
+  pv.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pinch&&pts.size===2){const [a,c]=[...pts.values()];insSetPos({s:pinch.s*Math.hypot(a.x-c.x,a.y-c.y)/pinch.d})}
+    else if(drag){const r=box();insSetPos({x:drag.px+(e.clientX-drag.x)/r.width,y:drag.py+(e.clientY-drag.y)/r.height})}});
+  const end=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);if(!pts.size){const was=drag||pinch;drag=pinch=null;if(was)insSetPos({},true)}else if(pts.size===1){pinch=null;const q=[...pts.values()][0],P=insPos(cur);drag={x:q.x,y:q.y,px:P.x,py:P.y}}};
+  pv.addEventListener('pointerup',end);pv.addEventListener('pointercancel',end);
+  let wT=null;pv.addEventListener('wheel',e=>{if(!active(e)||!(e.ctrlKey||e.metaKey))return;e.preventDefault();insSetPos({s:insPos(cur).s*Math.exp(-e.deltaY*.002)});clearTimeout(wT);wT=setTimeout(()=>insSetPos({},true),250)},{passive:false});
+}
+{const _iu=initUi2;initUi2=function(){_iu();bindInsert()}}
 
 /* ====================== Подключение ====================== */
 (function initUi3(){
