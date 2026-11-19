@@ -1146,11 +1146,13 @@ function setStatus(s){
   if(s==='cloud'){el.textContent='☁ Сохраняется в артефакте';el.classList.add('ok')}
   else if(s==='err'){el.textContent='Облако не отвечает — данные на устройстве';el.classList.add('err')}
   else if(s==='wait'){el.textContent='Подключаю сохранение…'}
+  else if(s==='atom'){el.textContent='⇅ Общие данные в Atom';el.classList.add('ok')}
   else el.textContent='Сохраняется на этом устройстве';
 }
 function persist(){
   touched=true;
   lsSet(LS_KEY,JSON.stringify(store));
+  if(atom&&atom.store){clearTimeout(atomT);atomT=setTimeout(atomPush,600)}
   if(!cloud)return;
   clearTimeout(flushT);flushT=setTimeout(flush,500);
 }
@@ -1185,6 +1187,46 @@ async function initCloud(){
   }catch(e){cloud=null;setStatus('local')}
 }
 
+/* ====================== Atom: открыты внутри ассистента владельца ====================== */
+/* Во встроенной странице браузер (особенно Safari на iPhone) не даёт скачать файл и вызвать «Поделиться»,
+   а данные живут только на одном устройстве. Если «Ценники» открыты внутри Atom, готовые файлы отдаются Atom
+   (он показывает своё окно «Файл готов»), а изделия и прайсы — общие: Atom хранит их и рассылает изменения
+   владельцу и операторам. Протокол — atom-app/1 (в Atom: static/app-bridge.js). */
+const ATOM_P='atom-app/1';
+let atom=null,atomT=null;
+const inFrame=(()=>{try{return window.parent!==window}catch(e){return true}})();
+function atomPost(type,extra){try{window.parent.postMessage(Object.assign({protocol:ATOM_P,atom:type},extra||{}),atom?atom.origin:'*')}catch(e){}}
+function atomPush(){if(atom&&atom.store)atomPost('store:set',{data:clone(store)})}
+function applyAtom(data,by,notify){
+  normalizeStore(data);
+  lsSet(LS_KEY,JSON.stringify(store));
+  renderAll();
+  if(notify)toast('Ценники обновлены'+(by?': '+by:''));
+}
+function onAtomMsg(e){
+  if(e.source!==window.parent)return;
+  const m=e.data;
+  if(!m||typeof m!=='object'||m.protocol!==ATOM_P)return;
+  if(!atom){
+    if(m.atom!=='welcome')return;
+    atom={origin:e.origin,features:new Set(Array.isArray(m.features)?m.features:[]),store:false};
+    if(atom.features.has('store')){
+      atom.store=true;
+      if(m.store&&m.store.data)applyAtom(m.store.data,m.store.by,false);
+      else atomPush();                       /* в Atom ещё пусто — отдаём то, что есть на устройстве */
+      setStatus('atom');
+    }
+    return;
+  }
+  if(e.origin!==atom.origin)return;
+  if(m.atom==='store'&&m.data)applyAtom(m.data,m.by,true);
+}
+function initAtom(){
+  if(!inFrame)return;
+  window.addEventListener('message',onAtomMsg);
+  atomPost('hello',{app:'cenniki',v:1});
+}
+
 /* ====================== Скачивание файлов ====================== */
 let DL=null;
 async function initDL(){try{DL=(window.claude&&claude.use)?await claude.use('downloads'):null}catch(e){DL=null}}
@@ -1207,6 +1249,10 @@ function shareSheet(file,url){return new Promise(res=>{
 async function saveLocal(name,data){
   const ext=(name.split('.').pop()||'').toLowerCase(),type=MIME[ext]||'application/octet-stream';
   const blob=data instanceof Blob?data:new Blob([data],{type});
+  if(atom&&atom.features.has('download')){         /* внутри Atom — файл показывает Atom */
+    atomPost('download',{name,type:blob.type||type,data:blob});
+    return true;
+  }
   const file=new File([blob],name,{type:blob.type||type});
   const url=URL.createObjectURL(file);setTimeout(()=>URL.revokeObjectURL(url),10*60*1000);
   if(navigator.canShare&&navigator.canShare({files:[file]})){
@@ -3975,7 +4021,7 @@ function bootApp(){
   setCur(d);
   if(d.id)savedSnap=JSON.stringify(store.tags.find(t=>t.id===d.id)||'');
   renderBadge();renderBrand();setStatus('local');renderDirty();
-  initDL();initCloud();initAI();initAssets();ensurePriceDemo();renderLogoUI();
+  initDL();initCloud();initAtom();initAI();initAssets();ensurePriceDemo();renderLogoUI();
   /* тексты меряются по встроенным шрифтам — перерисовываем, когда они загрузятся */
   if(document.fonts&&document.fonts.load){Promise.all(['700 10px "Playfair Display"','italic 400 10px "Playfair Display"','400 10px "Golos Text"','900 10px "Golos Text"'].map(f=>document.fonts.load(f).catch(()=>null)))
     .then(()=>{fillForm();renderPreview();if($('#tab-list').classList.contains('on'))renderList();if($('#tab-print').classList.contains('on'))renderPrint()})}
