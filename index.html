@@ -544,6 +544,40 @@ input[type=checkbox]{accent-color:var(--accent)}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   nav#nav,#toast,#ov .box,.plv-bar{background:var(--glass-tint-strong)} .card{background:var(--surface)}}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+
+/* ---------- Строительство: разделы работ, подразделы, блок «Работы по запросу» ---------- */
+.cn-presets{margin-top:12px}
+.cn-lib{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px;margin:12px 0 10px}
+.cn-lib button{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line-2);background:var(--surface);border-radius:12px;padding:8px 10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);min-height:52px;line-height:1.2;transition:background .15s,border-color .15s}
+.cn-lib button:hover{background:var(--sand-2)}
+.cn-lib button svg{width:24px;height:24px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--gold-d)}
+.cn-lib button small{display:block;font-weight:400;color:var(--ink-3);font-size:11.5px;margin-top:2px}
+.cn-lib button.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);background:var(--sand-2)}
+.cn-lib button.on svg{color:var(--ink)}
+.cn-lib button .in{color:var(--fresh);font-weight:600}
+.pl-cat-x{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 8px}
+.pl-cat-x select{flex:0 1 190px;min-height:36px;padding:6px 10px;font-size:13px}
+.pl-cat-x input[type=text]{flex:1 1 240px;min-height:36px;padding:6px 10px;font-size:13px}
+.pl-cat-x .chkrow{margin:0;font-size:13px;white-space:nowrap}
+.pl-cat.off>.pl-row,.pl-cat.off>.btns{opacity:.45}
+.pl-cat.off .pl-cat-h input{text-decoration:line-through;text-decoration-color:var(--ink-3)}
+.pl-row.is-sub{grid-template-columns:24px 104px minmax(0,1fr) 34px;background:var(--sand-2);border-radius:8px;border-top-color:transparent;margin-top:4px;padding:5px 4px}
+.pl-row.is-sub .c-name{font-weight:700;background:var(--surface)}
+.pl-row.is-sub .c-type{background:var(--surface)}
+.pl-row.is-sub .sub-mk{width:10px;height:10px;border-radius:2px;background:var(--gold);justify-self:center}
+.px-row{display:grid;grid-template-columns:minmax(0,2.4fr) 90px 110px 34px;gap:6px;align-items:center;padding:5px 0;border-top:1px solid var(--line)}
+.px-row input{min-height:36px;padding:7px 9px;font-size:13.5px}
+.px-row .x{width:32px;height:32px;border:0;background:none;color:var(--ink-3);font-size:18px;cursor:pointer;border-radius:8px}
+.px-row .x:hover{background:var(--sand-2);color:var(--sale)}
+#pl-extra.off #px-body{opacity:.5}
+.pl-view{margin-top:12px}
+.pl-view .chkrow{margin:8px 0 0}
+@media (max-width:1180px){
+  .pl-row.is-sub{grid-template-columns:24px minmax(0,1fr) 34px}
+  .pl-row.is-sub>.c-name{grid-column:2/3;grid-row:1}.pl-row.is-sub>.c-type{grid-column:2/3;grid-row:2}.pl-row.is-sub>.c-x{grid-column:3;grid-row:1}
+  .px-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 34px}
+  .px-row>.c-name{grid-column:1/3}.px-row>.x{grid-column:3;grid-row:1}
+}
 </style>
 
 <header class="hero">
@@ -823,6 +857,13 @@ input[type=checkbox]{accent-color:var(--accent)}
           </div>
           <p class="hint" style="margin:4px 0 0">Крупнее шрифт — больше страниц: прайс сам переносит позиции на следующий лист.</p>
         </div>
+        <div class="pl-view" id="pl-view">
+          <div class="lbl">Вид позиций</div>
+          <div class="seg" id="pl-layout"><button type="button" data-v="list">Список с точками</button><button type="button" data-v="table">Таблица</button></div>
+          <label class="chkrow"><input type="checkbox" class="chk" id="pl-num"> Нумеровать позиции</label>
+          <div class="lbl">Заголовки разделов</div>
+          <div class="seg" id="pl-sec"><button type="button" data-v="">Как в стиле</button><button type="button" data-v="line">Линия</button><button type="button" data-v="band">Плашка</button><button type="button" data-v="tab">Значок</button></div>
+        </div>
         <div class="btns" style="margin-top:12px"><button class="btn pri sm" id="pl-pdf">PDF прайса</button><button class="btn sm" id="pl-toprint">Добавить в печать</button></div>
         <p class="hint">Прайс печатается на A4 со своими полями 14 мм. «Добавить в печать» кладёт его в «Мои изделия», и он обновляется вместе с таблицей.</p>
       </div>
@@ -844,8 +885,31 @@ input[type=checkbox]{accent-color:var(--accent)}
           <div class="status" id="pl-bulk-st"></div>
         </details>
       </div>
+      <div class="card" id="cn-card">
+        <div class="sec-h"><span class="eyebrow">Строительство и ремонт</span><h2>Разделы работ</h2><p>Отметьте виды работ — каждый добавится в прайс отдельным разделом с подразделами и типовыми позициями. Разделы можно собирать в любом сочетании, а цены, единицы и порядок — править.</p></div>
+        <div class="seg cn-presets" id="cn-presets"><button type="button" data-p="flat">Ремонт квартиры</button><button type="button" data-p="house">Частный дом</button><button type="button" data-p="master">Мастер на час</button><button type="button" data-p="all">Все разделы</button><button type="button" data-p="none">Снять выбор</button></div>
+        <div class="cn-lib" id="cn-lib"></div>
+        <label class="chkrow"><input type="checkbox" class="chk" id="cn-prices" checked> Подставить ориентировочные цены (иначе — пустые, впишете свои)</label>
+        <div class="btns"><button class="btn pri sm" id="cn-add" disabled>Добавить в прайс</button><button class="btn sm" id="cn-new" disabled>Новый прайс из выбранных</button></div>
+        <div class="status" id="cn-st"></div>
+      </div>
       <div id="pl-cats"></div>
       <div class="btns" style="margin-top:12px"><button class="btn sm" id="pl-addcat">+ Категория</button></div>
+      <div class="card" id="pl-extra" style="margin-top:12px">
+        <div class="row-h"><div class="sec-h" style="margin:0"><span class="eyebrow">Конец прайса</span><h2>Работы по запросу</h2></div><label class="chkrow" style="margin:0"><input type="checkbox" class="chk" id="px-on"> Показывать</label></div>
+        <p class="hint" style="margin-top:6px">Блок печатается после всех разделов, в самом конце прайса. Впишите сюда свои работы: без цены они выйдут как «по запросу».</p>
+        <div id="px-body">
+          <label class="f"><span>Заголовок блока</span><input type="text" id="px-title" maxlength="50" placeholder="Работы по запросу"></label>
+          <label class="f"><span>Пояснение под заголовком</span><textarea id="px-note" maxlength="300" rows="3" placeholder="Не нашли нужную работу? Выполним по вашему запросу."></textarea></label>
+          <div id="px-rows"></div>
+          <div class="btns" style="margin-top:8px"><button class="btn sm" type="button" id="px-add">+ Своя работа</button></div>
+          <div class="row" style="margin-top:12px;align-items:flex-end">
+            <label class="f"><span>Пустые строки, чтобы дописать от руки</span><select id="px-blank"><option value="0">Без пустых строк</option><option value="3">3 строки</option><option value="5">5 строк</option><option value="8">8 строк</option><option value="12">12 строк</option></select></label>
+            <label class="chkrow" style="margin:0 0 10px"><input type="checkbox" class="chk" id="px-cta"> Плашка «Рассчитаем стоимость» с телефоном</label>
+          </div>
+          <p class="hint" id="px-phone-note" hidden>Телефон для плашки берётся из реквизитов в редакторе — сейчас он не заполнен.</p>
+        </div>
+      </div>
       <div class="selbar" id="pl-selbar" hidden>
         <b id="pl-selcount"></b>
         <button class="btn gold sm" id="pl-mk-tags">Сделать ценники</button>
@@ -4588,6 +4652,364 @@ async function initSampleImages(){try{if(!SAMPLE)return;const L=await SAMPLE.lim
 function renderPlStyleSel(){const cur2=store.price.style||'pl-classic',all=stylesFor('pricelist'),groups=[];
   for(const s of all){const gn=s.cat?s.g+' · '+s.cat:s.g;let G=groups.find(x=>x.g===gn);if(!G)groups.push(G={g:gn,list:[]});G.list.push(s)}
   $('#pl-style').innerHTML=`<select id="pl-style-sel" aria-label="Стиль прайс-листа">${groups.map(G=>`<optgroup label="${esc(G.g)}">${G.list.map(s=>`<option value="${s.k}"${s.k===cur2?' selected':''}>${esc(s.n)}</option>`).join('')}</optgroup>`).join('')}</select>`}
+
+/* ====================== Строительство и ремонт: стили, разделы работ, прайс с подразделами ====================== */
+/* значки работ: контур 24×24, рисуются линией цвета раздела */
+const CN_ICONS={
+  hammer:{n:'Молоток',d:'M14.5 3.5l6 6-2.5 2.5-6-6z M13.3 7.7L4 17a2.1 2.1 0 0 0 3 3l9.3-9.3'},
+  roller:{n:'Валик',d:'M4 3.5h13v5H4z M17 6h3v6h-8v3.5 M10.5 15.5h3V21h-3z'},
+  brush:{n:'Кисть',d:'M17.5 3l3.5 3.5-7.5 7.5-3.5-3.5z M10 10.5l-2.8.6c-1.9.4-2.4 1.9-2.4 3.4S3.6 17.6 2.5 18.6c3 1.6 7.6 1.2 8.6-2.4l.4-2.3'},
+  ceiling:{n:'Потолок',d:'M2.5 4h19 M12 4v4.5 M6.5 14a5.5 5.5 0 0 1 11 0z M10 17.5h4 M12 20.5v.01'},
+  floor:{n:'Пол',d:'M3 5h18v14H3z M3 9.7h18 M3 14.3h18 M9 5v4.7 M15.5 9.7v4.6 M7 14.3V19 M17 14.3V19'},
+  tile:{n:'Плитка',d:'M3.5 3.5h17v17h-17z M3.5 12h17 M12 3.5v17 M6 6.5l3 3 M14.5 14.5l3 3'},
+  bolt:{n:'Электрика',d:'M13 2.5L4.5 13.5h6.5l-1 8 8.5-11h-6.5z'},
+  socket:{n:'Розетка',d:'M4 4h16v16H4z M7 12a5 5 0 1 0 10 0a5 5 0 1 0-10 0 M10.2 11v2 M13.8 11v2'},
+  drop:{n:'Вода',d:'M12 3c3.6 4.6 6 7.8 6 11a6 6 0 0 1-12 0c0-3.2 2.4-6.4 6-11z M9 14.5a3 3 0 0 0 3 3'},
+  faucet:{n:'Смеситель',d:'M3 7.5h5 M5.5 7.5V11h6.5a4 4 0 0 1 4 4v1.2 M9 7.5V5 M7 5h4 M16 18.6c.8 1 1.2 1.6 1.2 2.2a1.2 1.2 0 0 1-2.4 0c0-.6.4-1.2 1.2-2.2z'},
+  wrench:{n:'Ключ',d:'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z'},
+  panel:{n:'Гипсокартон',d:'M3 4h8v16H3z M13 4h8v16h-8z M5.5 7v.01 M8.5 7v.01 M5.5 17v.01 M8.5 17v.01 M15.5 7v.01 M18.5 7v.01 M15.5 17v.01 M18.5 17v.01'},
+  door:{n:'Дверь',d:'M6 21V3h12v18 M3 21h18 M14.5 11.3v1.6'},
+  window:{n:'Окно',d:'M4.5 3h15v18h-15z M12 3v18 M4.5 12h15 M2.5 21h19'},
+  heat:{n:'Отопление',d:'M4 6.5h16v11H4z M8 6.5v11 M12 6.5v11 M16 6.5v11 M5.5 17.5V20 M18.5 17.5V20 M2 9h2'},
+  roof:{n:'Кровля',d:'M2 12.5L12 4l10 8.5 M5 10v10h14V10 M15.5 6.8V3.5H18v5.4'},
+  brick:{n:'Кладка',d:'M3 5h18v14H3z M3 9.7h18 M3 14.3h18 M12 5v4.7 M7.5 9.7v4.6 M16.5 9.7v4.6 M12 14.3V19'},
+  facade:{n:'Фасад',d:'M4 21V7l8-4 8 4v14 M2 21h20 M8 10h2 M14 10h2 M8 14h2 M14 14h2 M10 21v-3.5h4V21'},
+  shovel:{n:'Лопата',d:'M21 3l-6.6 6.6 M12.7 8.3l3 3 M12 9L5.4 10.6 3 18.6 5.4 21l8-2.4L15 12z'},
+  drill:{n:'Дрель',d:'M3 6.5h11V12H3z M14 8h3.5 M17.5 9.25H21 M6.5 12l-1 8.5H10l1-8.5'},
+  truck:{n:'Вывоз',d:'M2 5.5h12V16H2z M14 9.5h4.2l3.3 3.6V16H14 M5 18.3a1.8 1.8 0 1 0 3.6 0a1.8 1.8 0 1 0-3.6 0 M15.5 18.3a1.8 1.8 0 1 0 3.6 0a1.8 1.8 0 1 0-3.6 0'},
+  ruler:{n:'Замер',d:'M2.8 16.2L16.2 2.8l5 5L7.8 21.2z M6.6 12.4l2 2 M9.4 9.6l1.4 1.4 M12.2 6.8l2 2 M15 4l1.4 1.4'},
+  helmet:{n:'Каска',d:'M2.5 18h19 M4.5 18a7.5 7.5 0 0 1 15 0 M10 11V8.5h4V11 M3.5 18v1.5h17V18'},
+  house:{n:'Дом',d:'M3 11.5L12 4l9 7.5 M5.5 9.5V20h13V9.5 M10 20v-5.5h4V20'},
+  broom:{n:'Уборка',d:'M20 3l-6.5 6.5 M9.6 8.6l5.8 5.8 M10.2 9.2L5 14.4c-1 1-1.6 4.2-1.6 6.6 2.4 0 5.6-.6 6.6-1.6l5.2-5.2 M6.5 17.5l2-2'},
+  chat:{n:'Запрос',d:'M4 4.5h16v11.5H9.5L4 20.5z M8 8.8h8 M8 12h5'},
+  plus:{n:'Плюс',d:'M12 4.5v15 M4.5 12h15'}};
+function cnIcon(k,x,y,s,col,sw){const I=CN_ICONS[k];if(!I)return'';return `<g transform="translate(${n3(x)} ${n3(y)}) scale(${n3(s/24)})"><path d="${I.d}" fill="none" stroke="${col}" stroke-width="${n3(sw||1.8)}" stroke-linecap="round" stroke-linejoin="round"/></g>`}
+const cnIconUI=k=>CN_ICONS[k]?`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${CN_ICONS[k].d}"/></svg>`:'';
+
+/* ---------- декор стилей ---------- */
+/* сигнальная лента: диагональные полосы в полосе [y, y+hh] на всю ширину с вылетом */
+function cnStripes(c,y,hh,col1,col2){const id='CNS'+(++gidN),u=Math.max(.9,Math.min(hh*.8,c.mn*.045));
+  return `<defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="${n3(u*2)}" height="${n3(u*2)}" patternTransform="rotate(-45)"><rect width="${n3(u)}" height="${n3(u*2)}" fill="${col2}"/></pattern></defs>`+rect(-c.b,y,c.w+2*c.b,hh,col1)+rect(-c.b,y,c.w+2*c.b,hh,`url(#${id})`)}
+/* растр: точки, которые уменьшаются к краю области */
+function cnHalftone(x0,y0,wd,ht,step,col,op,dir){const d=[];
+  for(let y=y0;y<=y0+ht+1e-6;y+=step)for(let x=x0;x<=x0+wd+1e-6;x+=step){const u=(x-x0)/wd,v=(y-y0)/ht,f=dir==='l'?u:dir==='r'?1-u:dir==='b'?1-v:dir==='dl'?1-((1-u)+v)/2:1-(u+v)/2;if(f<=.06)continue;d.push(circ(x,y,step*.4*f))}
+  return d.length?`<path d="${d.join('')}" fill="${col}" fill-opacity="${op}"/>`:''}
+const hexD=(cx,cy,r)=>{let d='';for(let i=0;i<6;i++){const a=i*Math.PI/3;d+=(i?'L':'M')+n3(cx+Math.cos(a)*r)+' '+n3(cy+Math.sin(a)*r)}return d+'Z'};
+/* изометрический каркас дома для «чертежа» */
+function cnIsoHouse(ox,oy,s,col,sw,op){const C=Math.cos(Math.PI/6),S=.5,P=(x,y,z)=>[ox+(x-y)*C*s,oy+(x+y)*S*s-z*s];
+  const L=1.25,W=1,H=.72,R=.5,pt=(x,y,z)=>{const p=P(x,y,z);return n3(p[0])+' '+n3(p[1])},ln=(a,b)=>`M${pt(...a)}L${pt(...b)}`;
+  const A=[0,0,0],B=[L,0,0],Cc=[L,W,0],D=[0,W,0],A2=[0,0,H],B2=[L,0,H],C2=[L,W,H],D2=[0,W,H],R1=[0,W/2,H+R],R2=[L,W/2,H+R];
+  const e=[ln(A,B),ln(B,Cc),ln(Cc,D),ln(D,A),ln(A,A2),ln(B,B2),ln(Cc,C2),ln(D,D2),ln(A2,B2),ln(D2,C2),ln(A2,R1),ln(D2,R1),ln(B2,R2),ln(C2,R2),ln(R1,R2),
+    /* дверь и окна на фасадах */ln([.2,W,0],[.2,W,.45]),ln([.2,W,.45],[.42,W,.45]),ln([.42,W,.45],[.42,W,0]),
+    ln([.7,W,.25],[1.02,W,.25]),ln([1.02,W,.25],[1.02,W,.5]),ln([1.02,W,.5],[.7,W,.5]),ln([.7,W,.5],[.7,W,.25]),
+    ln([L,.3,.25],[L,.7,.25]),ln([L,.7,.25],[L,.7,.5]),ln([L,.7,.5],[L,.3,.5]),ln([L,.3,.5],[L,.3,.25])];
+  /* размерная линия вдоль фасада */
+  const dm=[ln([-.12,W+.18,0],[L+.12,W+.18,0]),ln([0,W+.08,0],[0,W+.28,0]),ln([L,W+.08,0],[L,W+.28,0])];
+  return `<path d="${e.join('')}" fill="none" stroke="${col}" stroke-width="${n3(sw)}" stroke-opacity="${op}" stroke-linejoin="round"/><path d="${dm.join('')}" fill="none" stroke="${col}" stroke-width="${n3(sw*.7)}" stroke-opacity="${op*.8}" stroke-dasharray="${n3(sw*4)} ${n3(sw*2)}"/>`}
+const cnPal=(k,c)=>palOf(SK[k],c.t);
+
+defSkin('th-cn-hazard',{n:'Сигнальная лента',caps:true,lsd:.02,dark:true,pal:{bg:'#161616',ink:'#FFFFFF',sub:'#C4C4C4',acc:'#FFC20E',panel:'#FFC20E',on:'#161616',price:'#FFC20E'},
+  fd:F_OSW,fdw:700,fb:GT,fbw:400,fp:F_OSW,fpw:700,inset:.05,topMn:.075,botMn:.075,rule:1,plSec:'band',
+  deco:c=>{const p=cnPal('th-cn-hazard',c),hh=c.mn*.055;
+    return{under:bgRect(c,c.w,c.h,c.b,p.bg)+cnHalftone(c.w-c.mn*.34,hh+c.mn*.012,c.mn*.3,c.mn*.06,c.mn*.02,'#FFFFFF',.14,'l')+cnStripes(c,-c.b,hh+c.b,p.acc,p.bg)+cnStripes(c,c.h-hh,hh+c.b,p.acc,p.bg),over:''}}});
+defSkin('th-cn-yellow',{n:'Жёлтая каска',caps:true,lsd:.01,pal:{bg:'#FFC20E',ink:'#161616',sub:'#4A3C08',acc:'#161616',panel:'#161616',on:'#FFC20E',price:'#161616'},
+  fd:GT,fdw:800,fb:GT,fbw:500,fp:GT,fpw:900,inset:.05,botMn:.13,rule:1,plSec:'band',
+  deco:c=>{const p=cnPal('th-cn-yellow',c),bh=c.mn*.1,r=c.mn*.075,cy=c.mn*.05+r,ic=['hammer','roller','house'],hx=[];
+    for(let i=0;i<3;i++){const cx=c.w-c.mn*.05-r-i*r*1.85;hx.push(PS(hexD(cx,cy,r),p.ink,Math.max(.15,c.mn*.004),' stroke-opacity=".22"'),`<g opacity=".22">${cnIcon(ic[i],cx-r*.5,cy-r*.5,r,p.ink,2)}</g>`)}
+    const sy=c.h-bh;
+    return{under:bgRect(c,c.w,c.h,c.b,p.bg)+hx.join('')+rect(-c.b,sy,c.w+2*c.b,bh+c.b,p.ink)+cnStripes(c,sy,Math.max(.4,bh*.14),p.bg,p.ink),over:''}}});
+defSkin('th-cn-graphite',{n:'Графит и жёлтый',dark:true,pal:{bg:'#2D2E32',ink:'#FFFFFF',sub:'#C2C3C7',acc:'#FFC20E',panel:'#FFC20E',on:'#1A1A1A',price:'#FFFFFF'},
+  fd:GT,fdw:800,fb:GT,fbw:400,fp:GT,fpw:900,inset:.06,botMn:.09,rule:1,plSec:'band',
+  deco:c=>{const p=cnPal('th-cn-graphite',c),q=c.mn*.2,bh=c.mn*.045,by=c.h-c.mn*.075;
+    return{under:bgRect(c,c.w,c.h,c.b,p.bg)+cnHalftone(c.w-c.mn*.42,c.mn*.05,c.mn*.36,c.mn*.3,c.mn*.026,'#FFFFFF',.1,'dl')
+      +PF(`M${n3(c.w-q)} ${n3(-c.b)}H${n3(c.w+c.b)}V${n3(q)}Z`,p.acc)+PF(`M${n3(c.w-q*1.45)} ${n3(-c.b)}H${n3(c.w-q*1.12)}L${n3(c.w+c.b)} ${n3(q*1.12+c.b)}V${n3(q*1.45)}Z`,p.acc,' fill-opacity=".35"')
+      +rect(-c.b,by,c.w*.58+c.b,bh,p.acc,` rx="${n3(bh/2)}"`)+rect(-c.b,by,c.mn*.05+c.b,bh,p.acc),over:''}}});
+defSkin('th-cn-blueprint',{n:'Чертёж',pal:{bg:'#1F4E99',ink:'#FFFFFF',sub:'#CADBF7',acc:'#FFC531',panel:'#FFC531',on:'#15386F',price:'#FFFFFF'},dark:true,
+  fd:GT,fdw:800,fb:GT,fbw:400,fp:F_RUSSO,fpw:400,inset:.06,rule:1,plSec:'tab',
+  deco:c=>{const p=cnPal('th-cn-blueprint',c),g=Math.max(1,c.mn*.025),mi=[],ma=[];let i=0;
+    for(let x=0;x<=c.w+c.b;x+=g,i++)(i%5?mi:ma).push(`M${n3(x)} ${n3(-c.b)}V${n3(c.h+c.b)}`);i=0;for(let y=0;y<=c.h+c.b;y+=g,i++)(i%5?mi:ma).push(`M${n3(-c.b)} ${n3(y)}H${n3(c.w+c.b)}`);
+    const q=c.mn*.22,s=c.mn*.2,big=c.mn>120;
+    return{under:bgRect(c,c.w,c.h,c.b,p.bg)+PS(mi.join(''),'#FFFFFF',Math.max(.06,c.mn*.0012),' stroke-opacity=".08"')+PS(ma.join(''),'#FFFFFF',Math.max(.1,c.mn*.002),' stroke-opacity=".16"')
+      +cnIsoHouse(c.w-s*2.15,c.h-s*1.62,s,'#FFFFFF',Math.max(.15,c.mn*.004),big?.13:.3)
+      +PF(`M${n3(c.w-q)} ${n3(-c.b)}H${n3(c.w+c.b)}V${n3(q)}Z`,p.acc)+PS(`M${n3(c.w-q*.62)} ${n3(-c.b)}L${n3(c.w+c.b)} ${n3(q*.62)}`,p.on,Math.max(.15,c.mn*.004),' stroke-opacity=".5"'),over:''}}});
+defSkin('th-cn-blocks',{n:'Белый и жёлтый',pal:{bg:'#FFFFFF',ink:'#111111',sub:'#5E5E5E',acc:'#111111',acc2:'#F2C200',panel:'#F2C200',on:'#111111',price:'#111111'},
+  fd:GT,fdw:800,fb:GT,fbw:400,fp:GT,fpw:900,inset:.06,topMn:.03,botMn:.1,rule:1,plSec:'tab',
+  deco:c=>{const p=cnPal('th-cn-blocks',c),mn=c.mn,sw=Math.max(.2,mn*.004),k=mn*.06,L=mn*.09;
+    const br=`M${n3(k*.7)} ${n3(k*.7+L)}V${n3(k*.7)}H${n3(k*.7+L)}M${n3(c.w-k*.7-L)} ${n3(c.h-k*.7)}H${n3(c.w-k*.7)}V${n3(c.h-k*.7-L)}`;
+    return{under:bgRect(c,c.w,c.h,c.b,p.bg)+rect(c.w*.6,-c.b,c.w*.4+c.b,mn*.12+c.b,p.panel)+rect(c.w-mn*.15,c.h-mn*.11,mn*.15+c.b,mn*.11+c.b,p.panel)
+      +rect(c.w*.6-mn*.075,mn*.035,mn*.045,mn*.045,p.ink)+rect(mn*.045,c.h-mn*.1,mn*.035,mn*.035,p.ink)+rect(-c.b,c.h*.42,mn*.022+c.b,c.h*.16,p.panel),over:PS(br,p.ink,sw)}}});
+defSkin('th-cn-halftone',{n:'Растр и дуга',dark:true,pal:{bg:'#121212',ink:'#FFFFFF',sub:'#BDBDBD',acc:'#F7A600',panel:'#F7A600',on:'#121212',price:'#F7A600'},
+  fd:GT,fdw:800,fb:GT,fbw:400,fp:GT,fpw:900,inset:.06,rule:1,plSec:'band',
+  deco:c=>{const p=cnPal('th-cn-halftone',c),mn=c.mn,R=mn*.3;
+    return{under:bgRect(c,c.w,c.h,c.b,p.bg)+cnHalftone(mn*.04,mn*.04,mn*.28,mn*.22,mn*.03,'#FFFFFF',.2,'d')
+      +`<circle cx="${n3(c.w+mn*.1)}" cy="${n3(c.h+mn*.1)}" r="${n3(R)}" fill="none" stroke="${p.acc}" stroke-width="${n3(mn*.06)}"/>`
+      +`<circle cx="${n3(c.w+mn*.1)}" cy="${n3(c.h+mn*.1)}" r="${n3(R*.7)}" fill="none" stroke="#FFFFFF" stroke-opacity=".12" stroke-width="${n3(mn*.015)}"/>`
+      +rect(c.w-mn*.13,mn*.06,mn*.06,mn*.06,p.acc)+rect(c.w-mn*.06,mn*.14,mn*.03,mn*.03,p.acc,' fill-opacity=".6"')
+      +PF(`M${n3(-c.b)} ${n3(c.h*.62)}L${n3(mn*.05)} ${n3(c.h*.62+mn*.05)}V${n3(c.h*.62+mn*.2)}L${n3(-c.b)} ${n3(c.h*.62+mn*.15)}Z`,p.acc),over:''}}});
+defSkin('th-cn-tape',{n:'Рулетка',caps:true,lsd:.02,pal:{bg:'#F7F5F0',ink:'#1B1B1B',sub:'#5C5A55',acc:'#E2A000',panel:'#1B1B1B',on:'#FFC20E',price:'#1B1B1B'},
+  fd:F_OSW,fdw:700,fb:GT,fbw:400,fp:F_OSW,fpw:700,inset:.05,topMn:.1,botMn:.03,rule:1,plSec:'tab',
+  deco:c=>{const p=cnPal('th-cn-tape',c),bh=c.mn*.085,u=bh<6?2:1,t=[],num=[],sw=Math.max(.1,u*.12);
+    for(let x=0,i=0;x<=c.w+c.b;x+=u,i++){const mm=i*u,L=mm%10===0?bh*.55:mm%5===0?bh*.38:bh*.22;t.push(`M${n3(x)} ${n3(bh)}V${n3(bh-L)}`);
+      if(mm%10===0&&mm>0&&x<c.w-bh*.3)num.push(tx(x+bh*.06,bh*.36,bh*.27,String(mm/10),{wt:700,fill:p.ink}))}
+    return{under:bgRect(c,c.w,c.h,c.b,p.bg)+rect(-c.b,-c.b,c.w+2*c.b,bh+c.b,'#FFC20E')+PS(t.join(''),p.ink,sw)+num.join('')+rect(-c.b,bh,c.w+2*c.b,Math.max(.25,bh*.06),p.ink)
+      +rect(-c.b,c.h-c.mn*.022,c.w+2*c.b,c.mn*.022+c.b,'#FFC20E'),over:''}}});
+defSkin('th-cn-brick',{n:'Кирпичная кладка',caps:true,lsd:.02,pal:{bg:'#F4EEE6',ink:'#2B1D16',sub:'#6B5A4F',acc:'#B4512F',panel:'#B4512F',on:'#FFFFFF',price:'#2B1D16'},
+  fd:F_OSW,fdw:700,fb:GT,fbw:400,fp:F_OSW,fpw:700,inset:.05,botMn:.17,rule:1,plSec:'band',
+  deco:c=>{const p=cnPal('th-cn-brick',c),bh=c.mn*.045,gap=Math.max(.2,bh*.12),bw=bh*2.1,rows=3,y0=c.h-rows*bh+gap*.5,r=mulberry(77),cols=[p.acc,mixC(p.acc,'#000000',.12),mixC(p.acc,'#ffffff',.12),mixC(p.acc,'#000000',.22)],o=[];
+    for(let j=0;j<rows+1;j++){const y=y0+j*bh,off=j%2?-bw/2:0;for(let x=-c.b+off;x<c.w+c.b;x+=bw)o.push(rect(x+gap/2,y,bw-gap,bh-gap,cols[Math.floor(r()*cols.length)]))}
+    /* ступенчатый край кладки справа */
+    for(let j=0;j<3;j++){const y=y0-(j+1)*bh,n=3-j,off=(rows-1-j)%2?bw/2:0;for(let i=0;i<n;i++){const x=c.w-off-(i+1)*bw+bw*.25;o.push(rect(x+gap/2,y,bw-gap,bh-gap,cols[Math.floor(r()*cols.length)]))}}
+    return{under:bgRect(c,c.w,c.h,c.b,p.bg)+rect(-c.b,y0-gap*.5,c.w+2*c.b,c.h-y0+c.b+gap,'#E3D7C9')+o.join('')+rect(-c.b,-c.b,c.w+2*c.b,c.mn*.018+c.b,p.acc),over:''}}});
+const CN_KEYS=['th-cn-hazard','th-cn-yellow','th-cn-graphite','th-cn-blueprint','th-cn-blocks','th-cn-halftone','th-cn-tape','th-cn-brick'];
+TH_CATS.splice(TH_CATS.length-1,0,['Строительство и ремонт',CN_KEYS]);CN_KEYS.forEach(k=>{SK[k].cat='Строительство и ремонт'});
+{const i=TH_ORDER.indexOf('th-egypt');TH_ORDER.splice(i<0?TH_ORDER.length:i,0,...CN_KEYS)}
+
+/* ---------- справочник разделов работ ---------- */
+/* строка: [название, ед., цена, описание]; «#Название» — подраздел */
+const CN_LIB=[
+  {k:'measure',n:'Замер и смета',icon:'ruler',rows:[['Выезд мастера и замер объекта','выезд','бесплатно'],['Составление сметы','объект','бесплатно'],['Обмерный план помещения','м²','150'],['Дизайн-проект интерьера','м²','от 1500'],['Технадзор и приёмка работ','выезд','3500']]},
+  {k:'demo',n:'Демонтажные работы',icon:'hammer',rows:[['#Стены и перегородки'],['Демонтаж кирпичной перегородки до 12 см','м²','650'],['Демонтаж перегородки из ГКЛ','м²','250'],['Снятие старых обоев','м²','90'],['Демонтаж штукатурки','м²','280'],['Демонтаж настенной плитки','м²','300'],
+    ['#Полы и потолки'],['Демонтаж стяжки до 5 см','м²','450'],['Демонтаж ламината или линолеума','м²','120'],['Демонтаж плинтуса','м.п.','40'],['Демонтаж подвесного потолка','м²','180'],
+    ['#Двери и сантехника'],['Демонтаж дверного блока','шт.','700'],['Демонтаж ванны или унитаза','шт.','900']]},
+  {k:'walls',n:'Отделка стен',icon:'roller',note:'Цены указаны за работу, без учёта материалов.',rows:[['#Подготовка'],['Грунтование стен','м²','50'],['Установка маячков','м²','120'],['Армирование стеклохолстом','м²','180'],
+    ['#Штукатурка и шпаклёвка'],['Штукатурка стен по маякам до 3 см','м²','650'],['Шпаклёвка под покраску в 2 слоя','м²','420'],['Шпаклёвка под обои','м²','280'],['Шлифовка стен','м²','120'],
+    ['#Покраска и обои'],['Покраска стен в 2 слоя','м²','300'],['Поклейка обоев (флизелин, винил)','м²','350'],['Поклейка обоев с подгонкой рисунка','м²','450'],['Декоративная штукатурка','м²','от 900']]},
+  {k:'ceil',n:'Потолки',icon:'ceiling',rows:[['#Окраска'],['Шпаклёвка потолка под покраску','м²','480'],['Покраска потолка в 2 слоя','м²','350'],
+    ['#Конструкции'],['Потолок из ГКЛ в один уровень','м²','1200'],['Двухуровневый потолок из ГКЛ','м.п.','1900'],['Натяжной потолок (матовый, сатин)','м²','от 650'],['Реечный потолок','м²','900'],['Монтаж потолочного плинтуса','м.п.','250']]},
+  {k:'floor',n:'Полы',icon:'floor',rows:[['#Основание'],['Цементно-песчаная стяжка до 5 см','м²','650'],['Наливной пол','м²','350'],['Обмазочная гидроизоляция','м²','300'],['Утепление пола','м²','250'],
+    ['#Покрытия'],['Укладка ламината','м²','450'],['Укладка кварцвинила (SPC)','м²','550'],['Укладка линолеума','м²','300'],['Укладка паркетной доски','м²','650'],['Монтаж плинтуса','м.п.','200']]},
+  {k:'tile',n:'Плиточные работы',icon:'tile',rows:[['Укладка настенной плитки','м²','1500'],['Укладка напольной плитки','м²','1400'],['Укладка керамогранита 60×120','м²','2200'],['Укладка мозаики','м²','2500'],['Запил плитки под 45°','м.п.','900'],['Затирка швов эпоксидной фугой','м²','600'],['Короб под инсталляцию с облицовкой','шт.','6500']]},
+  {k:'elec',n:'Электромонтажные работы',icon:'bolt',note:'Материалы рассчитываются отдельно.',rows:[['#Штробление'],['Штроба в бетоне','м.п.','450'],['Штроба в кирпиче','м.п.','350'],['Высверливание подрозетника в бетоне','шт.','400'],
+    ['#Прокладка и щит'],['Прокладка кабеля в штробе','м.п.','90'],['Прокладка кабеля в гофре по потолку','м.п.','110'],['Сборка электрощита до 12 модулей','шт.','6000'],['Установка автомата или УЗО','шт.','500'],
+    ['#Установка'],['Установка розетки или выключателя','точка','400'],['Установка светильника','шт.','650'],['Монтаж люстры','шт.','1500'],['Подключение электроплиты','шт.','1500'],['Монтаж электрического тёплого пола','м²','900']]},
+  {k:'plumb',n:'Сантехнические работы',icon:'drop',rows:[['#Трубы и разводка'],['Разводка водоснабжения','точка','2500'],['Разводка канализации','точка','2000'],['Установка коллектора','шт.','4500'],['Установка фильтра или редуктора','шт.','1200'],
+    ['#Установка сантехники'],['Установка унитаза','шт.','3000'],['Монтаж инсталляции с унитазом','компл.','7500'],['Установка ванны','шт.','4500'],['Установка раковины со смесителем','шт.','2800'],['Монтаж душевой кабины','шт.','6000'],['Установка смесителя','шт.','1500'],['Установка водонагревателя','шт.','3500'],['Подключение стиральной или посудомоечной машины','шт.','1500']]},
+  {k:'gkl',n:'Перегородки и ГКЛ',icon:'panel',rows:[['Перегородка из ГКЛ на металлокаркасе','м²','1100'],['Обшивка стен ГКЛ на каркасе','м²','900'],['Короб из ГКЛ под трубы','м.п.','1300'],['Перегородка из пазогребневых плит','м²','900'],['Перегородка из газобетона','м²','1000'],['Шумоизоляция перегородки','м²','350'],['Ниша из ГКЛ','шт.','от 3500']]},
+  {k:'doors',n:'Окна и двери',icon:'door',rows:[['#Двери'],['Установка межкомнатной двери','шт.','4500'],['Установка входной двери','шт.','5500'],['Монтаж доборов и наличников','компл.','1800'],['Врезка замка','шт.','1500'],
+    ['#Окна'],['Установка пластикового окна','м²','1500'],['Монтаж откосов','м.п.','900'],['Установка подоконника','шт.','1200'],['Регулировка фурнитуры','створка','800']]},
+  {k:'heat',n:'Отопление и вентиляция',icon:'heat',rows:[['Установка радиатора отопления','шт.','4500'],['Перенос радиатора','шт.','6500'],['Монтаж котла','шт.','от 12000'],['Водяной тёплый пол','м²','1200'],['Установка кондиционера до 3,5 кВт','шт.','9000'],['Монтаж вытяжного вентилятора','шт.','1500'],['Прокладка воздуховода','м.п.','700']]},
+  {k:'masonry',n:'Кладочные работы',icon:'brick',rows:[['Кладка кирпича в полкирпича','м²','1200'],['Кладка кирпича в один кирпич','м³','4500'],['Кладка газобетонных блоков','м³','3500'],['Облицовочная кладка','м²','1800'],['Устройство армопояса','м.п.','1500'],['Кладка печей и каминов','объект','']]},
+  {k:'found',n:'Фундамент и земляные работы',icon:'shovel',rows:[['Разработка грунта вручную','м³','1500'],['Разработка грунта экскаватором','м³','450'],['Ленточный фундамент под ключ','м³','от 9500'],['Монолитная плита','м³','от 8500'],['Винтовые сваи с монтажом','шт.','3500'],['Гидроизоляция фундамента','м²','650'],['Обратная засыпка с трамбовкой','м³','600']]},
+  {k:'roof',n:'Кровельные работы',icon:'roof',rows:[['Монтаж стропильной системы','м²','900'],['Укладка металлочерепицы','м²','650'],['Укладка гибкой черепицы','м²','750'],['Монтаж мягкой кровли','м²','600'],['Утепление кровли','м²','350'],['Монтаж водосточной системы','м.п.','550'],['Ремонт кровли','м²','от 450']]},
+  {k:'facade',n:'Фасадные работы',icon:'facade',rows:[['Утепление фасада минватой','м²','1300'],['Мокрый фасад с декоративной штукатуркой','м²','1600'],['Монтаж сайдинга','м²','650'],['Облицовка фасадными панелями','м²','900'],['Покраска фасада','м²','350'],['Монтаж вентфасада','м²','от 1800']]},
+  {k:'master',n:'Мастер на час',icon:'wrench',rows:[['Вызов мастера, до 1 часа работ','выезд','1500'],['Каждый следующий час','час','1200'],['Сборка корпусной мебели','изделие','от 1500'],['Монтаж кухонного гарнитура','м.п.','2500'],['Навес полок, карнизов, зеркал','шт.','500'],['Навес телевизора на кронштейн','шт.','2000']]},
+  {k:'clean',n:'Вывоз мусора и уборка',icon:'truck',rows:[['Вынос строительного мусора в мешках','мешок','60'],['Вывоз мусора на ГАЗели','рейс','5500'],['Вывоз мусора контейнером 8 м³','контейнер','14000'],['Доставка и подъём материалов','т','от 1500'],['Генеральная уборка после ремонта','м²','180'],['Мойка окон после ремонта','створка','450']]}];
+const CN_PRESETS={flat:['measure','demo','walls','ceil','floor','tile','elec','plumb','doors','clean'],house:['measure','found','masonry','roof','facade','heat','elec','plumb','clean'],master:['master','elec','plumb','doors']};
+const CN_EXTRA_NOTE='Не нашли нужную работу в прайсе? Выполним её по вашему запросу — стоимость рассчитаем после осмотра объекта.';
+
+/* ---------- цены и единицы ---------- */
+/* «от 1500» → «от 1 500», «1500–2000» → «1 500–2 000», слова оставляем как есть */
+function cnPrice(s){s=String(s??'').trim();if(!s)return'';return s.replace(/\d[\d\s]*(?:[.,]\d{1,2})?/g,m=>{const t=m.replace(/\s+$/,'');return fmtPrice(t)+(m.length>t.length?' ':'')})}
+const cnUnitL=u=>{u=String(u||'').trim();return!u||/^(\/|за\s|%)/i.test(u)?u:'/ '+u};
+const cnUnitT=u=>String(u||'').trim().replace(/^\/\s*/,'');
+function plSecOf(t){const v=store.price&&store.price.sec;if(v==='line'||v==='band'||v==='tab')return v;const sk=PL_ST[t.tpl]?null:skinOf(t.tpl);return sk&&sk.plSec||'line'}
+
+/* ---------- раскладка прайса: разделы, подразделы, таблица, блок «по запросу» ---------- */
+plLayout=function(t){
+  const d=priceData(),pr=store.price||{},w=210,h=297,P=PT2MM,skp=skinPads(t,w,h),m=Math.max(14,skp.m),lp=skp.lp||0,tp=skp.tp,bp=skp.bp,x0=m+lp,cw=w-2*m-lp,priceW=34,nameW=cw-priceW-4;
+  const table=pr.layout==='table',num=!!pr.num,sec=plSecOf(t);
+  const nS=fB(9.5*P),dS=fB(7.4*P),cS=fB(8*P),top1=m+tp+34,topN=m+tp+14,bottom=h-m-bp-10,pages=[[]];let y=top1;
+  const numW=num?mt('000.',nS*.85,GT,600)+1.2:0,unitW=table?19:0,priceWT=table?28:priceW,nmX=x0+numW,nmW=table?cw-numW-unitW-priceWT-3:nameW-numW;
+  const headB=sec==='band'?cS*2.6:sec==='tab'?cS*2.9:cS*2.2,catH=headB+cS*.8,thH=table?dS*2.4:0,subH=nS*2.15,contH=cS*2.3;
+  const meas=r=>{const NL=wrapText(String(r.name||''),nS,GT,600,nmW).slice(0,3),DL=r.desc?wrapText(String(r.desc),dS,GT,400,nmW).slice(0,3):[];if(!NL.length)NL.push('');
+    return{NL,DL,rh:table?NL.length*nS*1.26+DL.length*dS*1.3+3.4:NL.length*nS*1.28+DL.length*dS*1.32+2.6}};
+  const push=it=>{pages[pages.length-1].push(it)},fits=hh=>y+hh<=bottom;
+  let cont=null,n=0,idx=0;
+  const newPage=()=>{pages.push([]);y=topN;if(cont){push({k:'cont',y,name:cont});y+=contH;if(table){push({k:'th',y});y+=thH}}};
+  const head=(name,icon,note,ns,first,noTH)=>{const NoteL=note?wrapText(String(note),ns,GT,400,cw).slice(0,5):[],hH=catH+(NoteL.length?NoteL.length*ns*1.35+ns*.5:0),th=table&&!noTH?thH:0;
+    cont=null;if(!fits(hH+th+first))newPage();push({k:'cat',y,name,icon,NoteL,ns,idx:++idx});y+=hH;cont=name;if(th){push({k:'th',y});y+=th}};
+  for(const c of d.cats){if(c.off)continue;
+    const raw=(c.rows||[]).filter(r=>r.type==='sub'?String(r.name||'').trim():(String(r.name||'').trim()||String(r.price||'').trim()));
+    const rows=raw.filter((r,i)=>r.type!=='sub'||(raw[i+1]&&raw[i+1].type!=='sub'));if(!rows.length)continue;
+    const mixed=rows.some(r=>r.type!=='sub'&&r.type!=='service');
+    head(c.name||'Без категории',c.icon,c.note,dS,rows[0].type==='sub'?subH+meas(rows[1]).rh:meas(rows[0]).rh);
+    let z=0;
+    for(let i=0;i<rows.length;i++){const r=rows[i];
+      if(r.type==='sub'){if(!fits(subH+meas(rows[i+1]).rh))newPage();push({k:'sub',y,name:r.name});y+=subH;z=0;continue}
+      const M=meas(r);if(!fits(M.rh)){newPage();z=0}
+      push({k:'row',y,r,NL:M.NL,DL:M.DL,rh:M.rh,num:++n,badge:mixed&&r.type==='service',z:z++%2});y+=M.rh}
+    cont=null;y+=table?4:2.5}
+  const X=pr.extra;
+  if(X&&X.on){const B=brand(),xs=dS*1.1,xr=(X.rows||[]).filter(r=>String(r.name||'').trim()),blank=clamp(+X.blank||0,0,20),bh=nS*2.5,ctaOn=!!X.cta&&!!String(B.phone||'').trim(),ctaH=nS*4.6;
+    const first=xr.length?meas(xr[0]).rh:blank?bh:ctaOn?ctaH+3:0;
+    /* без своих строк шапка таблицы не нужна */
+    head(X.title||'Работы по запросу','chat',X.note,xs,first,!(xr.length||blank));
+    let z=0;for(const r of xr){const M=meas(r);if(!fits(M.rh)){newPage();z=0}push({k:'row',y,r,NL:M.NL,DL:M.DL,rh:M.rh,num:++n,badge:false,z:z++%2});y+=M.rh}
+    for(let i=0;i<blank;i++){if(!fits(bh))newPage();push({k:'blank',y,h:bh,num:++n});y+=bh}
+    cont=null;
+    if(ctaOn){y+=3;if(!fits(ctaH))newPage();push({k:'cta',y,h:ctaH});y+=ctaH}}
+  return{pages,d,m,x0,lp,tp,bp,cw,priceW,nameW,nS,dS,cS,table,num,sec,headB,catH,thH,subH,contH,numW,unitW,priceWT,nmX,nmW};
+};
+
+renderPriceList=function(t,o,w,h,b){
+  const sk=PL_ST[t.tpl]?null:skinOf(t.tpl),st=PL_ST[t.tpl]||skinPlSt(t)||PL_ST['pl-classic'],pal=sk?palOf(sk,t):null;
+  const L=plLayout(t),pi=clamp(o.page||0,0,L.pages.length-1),items=L.pages[pi]||[],B=brand(),P=PT2MM,out=[],m=L.m,x0=L.x0,cw=L.cw,xr=x0+cw,cur=L.d.cur,cS=L.cS,nS=L.nS,dS=L.dS;
+  const hex=v=>/^#[0-9a-f]{6}$/i.test(v||''),panel=pal&&hex(pal.panel)?pal.panel:st.accD,onC=pal&&hex(pal.on)?pal.on:readableOn(hex(panel)?panel:'#141414');
+  const zebra=hex(st.bg)&&hex(st.ink)?mixC(st.bg,st.ink,st.dark?.08:.05):'none';
+  let DOV='';if(st.deco){const D=skinDeco(st.deco,skinCtx(t,w,h,b),t);out.push(D.under);DOV=D.over||''}else out.push(rect(-b,-b,w+2*b,h+2*b,st.bg,' id="background"'));if(st.speck)out.push(speckle(w,h,b,2,CL.char,.06));
+  const fdT=st.fd||PD,fdW=st.fdw||700,T=m+L.tp,Bm=m+L.bp;
+  if(pi===0){
+    out.push(brandMark(t,!!st.dark,x0,T,60,11,'l','t',()=>B.name?tx(x0,T+4,8*P,B.name.toUpperCase(),{wt:600,fill:st.accD,ls:.18,id:'brand'}):''));
+    if(t.tpl==='pl-plaster')out.push(paintDots(w-m-7,m+3,1.1));
+    out.push(tx(x0,T+21,fitSize(L.d.title,fT(24*P),12*P,cw,fdT,fdW),L.d.title,{fam:fdT,wt:fdW,fill:st.ink,id:'title'}));
+    if(L.d.subtitle)out.push(tx(x0,T+27.5,8.5*P,L.d.subtitle,{fill:st.sub,id:'subtitle'}));
+    out.push(rect(x0,T+30.5,cw,.35,st.acc));
+  }else{
+    const ps=`стр. ${pi+1} из ${L.pages.length}`,pw=mt(ps,7.5*P,GT,400)+4;
+    out.push(tx(x0,T+6,fitSize(L.d.title,11*P,7*P,cw-pw,fdT,fdW),L.d.title,{fam:fdT,wt:fdW,fill:st.ink}),tx(xr,T+6,7.5*P,ps,{fill:st.sub,a:'r'}),rect(x0,T+9,cw,.25,st.line));
+  }
+  const priceCol=xr-.8,unitCol=xr-L.priceWT-L.unitW/2;
+  for(const it of items){
+    if(it.k==='cat'){const name=String(it.name).toUpperCase(),ic=it.icon&&CN_ICONS[it.icon]?it.icon:'';
+      if(L.sec==='band'){const bh=cS*2.6;let tx0=x0+cS*.9;out.push(rect(x0,it.y,cw,bh,panel,` rx="${n3(bh*.12)}"`));
+        if(ic){out.push(cnIcon(ic,x0+cS*.6,it.y+(bh-cS*1.6)/2,cS*1.6,onC,2));tx0=x0+cS*2.65}
+        out.push(tx(tx0,it.y+bh/2+cS*.36,fitSize(name,cS*1.02,cS*.7,xr-tx0-cS,GT,800,0,.1),name,{wt:800,fill:onC,ls:.1}))}
+      else if(L.sec==='tab'){const q=cS*2.9,tx0=x0+q+cS*.9;out.push(rect(x0,it.y,q,q,panel,` rx="${n3(q*.1)}"`));
+        if(ic)out.push(cnIcon(ic,x0+q*.2,it.y+q*.2,q*.6,onC,2));else out.push(tx(x0+q/2,it.y+q/2+cS*.38,cS*1.05,String(it.idx).padStart(2,'0'),{wt:800,fill:onC,a:'c'}));
+        out.push(tx(tx0,it.y+q/2+cS*.4,fitSize(name,cS*1.12,cS*.75,xr-tx0,GT,800,0,.08),name,{wt:800,fill:st.ink,ls:.08}),rect(x0+q,it.y+q-.25,cw-q,.25,st.line))}
+      else{let tx0=x0;if(ic){out.push(cnIcon(ic,x0,it.y+cS*.45,cS*1.45,st.accD,2));tx0=x0+cS*2}
+        out.push(tx(tx0,it.y+cS*1.6,cS,name,{wt:700,fill:st.accD,ls:.14}),rect(x0,it.y+cS*2.2,cw,.2,st.line))}
+      if(it.NoteL.length)out.push(txLines(null,it.NoteL,x0,it.y+L.headB+it.ns*1.3,it.ns,it.ns*1.35,{fill:st.sub}));
+      continue}
+    if(it.k==='th'){const s=dS*.92,yb=it.y+L.thH*.6,o2={wt:600,fill:st.sub};
+      if(L.num)out.push(tx(x0+.5,yb,s,'№',o2));
+      out.push(tx(L.nmX,yb,s,'Наименование',o2),tx(unitCol,yb,s,'Ед. изм.',Object.assign({a:'c'},o2)),tx(priceCol,yb,s,'Цена'+(cur?', '+cur:''),Object.assign({a:'r'},o2)),rect(x0,it.y+L.thH-.55,cw,.3,st.acc));continue}
+    if(it.k==='cont'){out.push(tx(x0,it.y+cS*1.35,cS*.9,(String(it.name)+' · продолжение').toUpperCase(),{wt:700,fill:st.sub,ls:.12}));continue}
+    if(it.k==='sub'){const s=nS*.98,yb=it.y+L.subH*.68;out.push(rect(x0,yb-s*.66,s*.6,s*.6,st.acc,` rx="${n3(s*.08)}"`),tx(x0+s*1.15,yb,s,String(it.name),{wt:700,fill:st.ink}));
+      if(L.table)out.push(rect(x0,it.y+L.subH-.4,cw,.18,st.line));continue}
+    if(it.k==='blank'){const yb=it.y+it.h-1.3,ln=(a,b2)=>`<line x1="${n3(a)}" y1="${n3(yb)}" x2="${n3(b2)}" y2="${n3(yb)}" stroke="${st.sub}" stroke-opacity=".6" stroke-width=".2"/>`;
+      if(L.num)out.push(tx(x0+.5,yb-.5,nS*.85,it.num+'.',{wt:600,fill:st.sub}));
+      if(L.table)out.push(ln(L.nmX,xr-L.priceWT-L.unitW-1.5),ln(xr-L.priceWT-L.unitW+1,xr-L.priceWT-1),ln(xr-L.priceWT+2,xr));
+      else out.push(ln(L.nmX,xr-30),ln(xr-26,xr));continue}
+    if(it.k==='cta'){const hh=it.h,y=it.y,ic=hh*.5,tx0=x0+hh*.3+ic+hh*.28,ph=String(B.phone||'').trim();
+      out.push(rect(x0,y,cw,hh,panel,` rx="${n3(hh*.14)}"`),cnIcon('helmet',x0+hh*.3,y+hh*.25,ic,onC,2));
+      const phS=fitSize(ph,fP(12*P),7*P,cw*.42,GT,800),phW=mt(ph,phS,GT,800),lw=xr-hh*.3-phW-tx0-3;
+      out.push(tx(tx0,y+hh*.44,fitSize('РАССЧИТАЕМ СТОИМОСТЬ ВАШИХ РАБОТ',cS*1.05,cS*.6,lw,GT,800,0,.06),'РАССЧИТАЕМ СТОИМОСТЬ ВАШИХ РАБОТ',{wt:800,fill:onC,ls:.06}),
+        tx(tx0,y+hh*.44+cS*1.45,fitSize('Позвоните — обсудим задачу и составим смету',dS*1.05,dS*.6,lw,GT,400),'Позвоните — обсудим задачу и составим смету',{fill:onC,op:.85}),
+        tx(xr-hh*.3,y+hh/2+phS*.36,phS,ph,{wt:800,fill:onC,a:'r'}));continue}
+    /* позиция */
+    const r=it.r;
+    if(L.table){if(it.z&&zebra!=='none')out.push(rect(x0,it.y,cw,it.rh,zebra));
+      const y=it.y+1.7+nS*.95,pr=cnPrice(r.price),old=cnPrice(r.old),un=cnUnitT(r.unit);
+      if(L.num)out.push(tx(x0+.5,y,nS*.85,it.num+'.',{wt:600,fill:st.sub}));
+      out.push(txLines(null,it.NL,L.nmX,y,nS,nS*1.26,{wt:600,fill:st.ink}));
+      if(it.DL.length)out.push(txLines(null,it.DL,L.nmX,y+(it.NL.length-1)*nS*1.26+dS*1.4,dS,dS*1.3,{fill:st.sub}));
+      if(un)out.push(tx(unitCol,y,fitSize(un,dS*1.1,dS*.7,L.unitW-1,GT,400),un,{fill:st.sub,a:'c'}));
+      const prS=pr||'по запросу',pS=pr?fitSize(prS,fP(9.5*P*1.05),dS*.8,L.priceWT-1,GT,800):dS*1.05;
+      out.push(tx(priceCol,y,pS,prS,{wt:pr?800:500,fill:pr?st.ink:st.sub,a:'r'}));
+      if(old){const os=dS*.95,ow=mt(old,os,GT,400);out.push(tx(priceCol,y+dS*1.35,os,old,{fill:st.sub,a:'r'}),`<line x1="${n3(priceCol-ow)}" y1="${n3(y+dS*1.35-os*.3)}" x2="${n3(priceCol)}" y2="${n3(y+dS*1.35-os*.3)}" stroke="${st.sub}" stroke-width=".18"/>`)}
+      continue}
+    const x=L.nmX;let y=it.y+nS*.95;
+    if(L.num)out.push(tx(x0,y,nS*.85,it.num+'.',{wt:600,fill:st.sub}));
+    out.push(txLines(null,it.NL,x,y,nS,nS*1.28,{wt:600,fill:st.ink}));
+    const lastW=mt(it.NL[it.NL.length-1]||'',nS,GT,600),ly=y+(it.NL.length-1)*nS*1.28;
+    const pr=cnPrice(r.price),prS=pr?(/\d/.test(pr)&&cur?pr+' '+cur:pr):'по запросу',un=cnUnitL(r.unit);
+    const pS=fP(9.5*PT2MM*1.05),pw=mt(prS,pS,GT,800),uw=un?mt(un,dS,GT,400)+1:0,old=cnPrice(r.old),ow=old?mt(old,dS,GT,400)+1.6:0;
+    const lx1=x+lastW+1.5,lx2=xr-pw-uw-ow-1.5;
+    if(lx2>lx1+2)out.push(`<line x1="${n3(lx1)}" y1="${n3(ly)}" x2="${n3(lx2)}" y2="${n3(ly)}" stroke="${st.sub}" stroke-opacity=".55" stroke-width=".3" stroke-dasharray=".25 1.1" stroke-linecap="round"/>`);
+    let px=xr;
+    if(un){out.push(tx(px,ly,dS,un,{fill:st.sub,a:'r'}));px-=uw}
+    out.push(tx(px,ly,pS,prS,{wt:800,fill:pr?st.ink:st.sub,a:'r'}));px-=pw+1.6;
+    if(old){out.push(tx(px,ly,dS,old,{fill:st.sub,a:'r'}));const ow2=mt(old,dS,GT,400);out.push(`<line x1="${n3(px-ow2)}" y1="${n3(ly-dS*.3)}" x2="${n3(px)}" y2="${n3(ly-dS*.3)}" stroke="${st.sub}" stroke-width=".18"/>`)}
+    if(it.badge){const tS=5.2*P,tw2=mt('УСЛУГА',tS,GT,700,0,.1)+2.4;const bx=x+lastW+2;if(lx2>bx+tw2+3){out.push(rect(bx,ly-tS*1.1,tw2,tS*1.5,'none',` rx="${n3(tS*.75)}" stroke="${st.acc}" stroke-width=".2"`),tx(bx+tw2/2,ly-tS*.08,tS,'УСЛУГА',{wt:700,fill:st.accD,ls:.1,a:'c'}))}}
+    if(it.DL.length)out.push(txLines(null,it.DL,x,ly+dS*1.45,dS,dS*1.32,{fill:st.sub}));
+  }
+  const ft=[B.address,B.phone,B.site].filter(Boolean).join('  ·  ');
+  out.push(rect(x0,h-Bm-6,cw,.2,st.line));
+  if(ft)out.push(tx(x0,h-Bm-1.5,fitSize(ft,6.5*P,5*P,cw-14,GT,400),ft,{fill:st.sub}));
+  out.push(tx(xr,h-Bm-1.5,6.5*P,`${pi+1} / ${L.pages.length}`,{fill:st.sub,a:'r'}));
+  return out.join('')+DOV;
+};
+
+/* ---------- редактор прайса: подразделы, значки, видимость разделов ---------- */
+const _rowHTMLCN=rowHTML;
+rowHTML=function(c,r){
+  if(r.type!=='sub')return _rowHTMLCN(c,r).replace('</select>','<option value="sub">Подраздел</option></select>');
+  return `<div class="pl-row is-sub" data-c="${c.id}" data-r="${r.id}"><span class="sub-mk"></span>
+    <select class="c-type" data-k="type" aria-label="Тип строки"><option value="good">Товар</option><option value="service">Услуга</option><option value="sub" selected>Подраздел</option></select>
+    <input class="c-name" data-k="name" value="${esc(r.name||'')}" placeholder="Название подраздела, например «Штукатурка»" maxlength="60">
+    <button class="x c-x" data-del-row aria-label="Удалить подраздел">×</button></div>`};
+const _plSelectedCN=plSelected;plSelected=function(){return _plSelectedCN().filter(x=>x.r.type!=='sub')};
+const CN_ICON_PICK=Object.keys(CN_ICONS).filter(k=>k!=='plus');
+function cnEnhanceCats(){
+  for(const el of $$('#pl-cats .pl-cat[data-c]')){const c=store.price.cats.find(x=>x.id===el.dataset.c);if(!c)continue;
+    el.classList.toggle('off',!!c.off);
+    const up=$('[data-cat-up]',el);if(up&&!$('[data-cat-down]',el))up.insertAdjacentHTML('afterend','<button class="btn sm ghost" data-cat-down aria-label="Ниже">↓</button>');
+    const hd=$('.pl-cat-h',el);if(hd&&!$('.pl-cat-x',el))hd.insertAdjacentHTML('afterend',`<div class="pl-cat-x">
+      <select data-cat-icon aria-label="Значок раздела"><option value="">Без значка</option>${CN_ICON_PICK.map(k=>`<option value="${k}"${c.icon===k?' selected':''}>Значок: ${esc(CN_ICONS[k].n)}</option>`).join('')}</select>
+      <input type="text" data-cat-note value="${esc(c.note||'')}" placeholder="Примечание под заголовком, например «цены без материалов»" maxlength="140" aria-label="Примечание к разделу">
+      <label class="chkrow"><input type="checkbox" class="chk" data-cat-on${c.off?'':' checked'}> В прайсе</label></div>`);
+    const ar=$('[data-add-row]',el);if(ar&&!$('[data-add-sub]',el))ar.insertAdjacentHTML('afterend','<button class="btn sm" data-add-sub>+ Подраздел</button>');
+  }
+}
+/* ---------- справочник разделов ---------- */
+const cnPick=new Set();
+/* порядок — как выбирали: у пресетов он идёт по ходу работ */
+const cnPicked=()=>[...cnPick].map(k=>CN_LIB.find(s=>s.k===k)).filter(Boolean);
+const cnInPrice=k=>!!(store.price&&Array.isArray(store.price.cats)&&store.price.cats.some(c=>c.lib===k));
+function renderCNLib(){const box=$('#cn-lib');if(!box)return;
+  box.innerHTML=CN_LIB.map(s=>{const n=s.rows.filter(r=>r[0][0]!=='#').length,on=cnPick.has(s.k);
+    return `<button type="button" data-k="${s.k}"${on?' class="on"':''} aria-pressed="${on}">${cnIconUI(s.icon)}<span>${esc(s.n)}<small>${n} поз.${cnInPrice(s.k)?' · <span class="in">уже в прайсе</span>':''}</small></span></button>`}).join('');
+  const n=cnPick.size;$('#cn-add').disabled=$('#cn-new').disabled=!n;$('#cn-add').textContent=n?`Добавить в прайс (${n})`:'Добавить в прайс';
+  $$('#cn-presets button').forEach(b=>{const P=CN_PRESETS[b.dataset.p];b.classList.toggle('on',!!P&&P.length===n&&P.every(k=>cnPick.has(k)))});
+}
+function cnSection(s,withPrices){return{id:uid(),name:s.n,icon:s.icon,note:s.note||'',lib:s.k,
+  rows:s.rows.map(r=>r[0][0]==='#'?{id:uid(),type:'sub',name:r[0].slice(1)}:{id:uid(),type:'service',name:r[0],desc:r[3]||'',unit:r[1]||'',price:withPrices?(r[2]||''):'',old:'',sku:''})}}
+function cnExtra(){const p=store.price;if(!p.extra||typeof p.extra!=='object')p.extra={on:false,title:'Работы по запросу',note:CN_EXTRA_NOTE,rows:[],blank:0,cta:true};if(!Array.isArray(p.extra.rows))p.extra.rows=[];return p.extra}
+function cnSetStyle(k){store.price.style=k;delete store.price.skinOpt;store.tags.forEach(t=>{if(t.product==='pricelist'){t.tpl=k;delete t.skinOpt}})}
+function renderPX(){const box=$('#pl-extra');if(!box||!store.price)return;const X=cnExtra();
+  $('#px-on').checked=!!X.on;box.classList.toggle('off',!X.on);
+  if(document.activeElement!==$('#px-title'))$('#px-title').value=X.title||'';if(document.activeElement!==$('#px-note'))$('#px-note').value=X.note||'';
+  $('#px-blank').value=String(clamp(+X.blank||0,0,12));if(!$('#px-blank').value)$('#px-blank').value='0';$('#px-cta').checked=!!X.cta;
+  $('#px-phone-note').hidden=!(X.cta&&!String(brand().phone||'').trim());
+  $('#px-rows').innerHTML=X.rows.map(r=>`<div class="px-row" data-x="${r.id}"><input class="c-name" type="text" data-px="name" value="${esc(r.name||'')}" placeholder="Название работы" maxlength="80"><input type="text" data-px="unit" value="${esc(r.unit||'')}" placeholder="Ед., м²" maxlength="16"><input type="text" data-px="price" value="${esc(r.price||'')}" placeholder="по запросу" maxlength="14"><button class="x" type="button" data-px-del aria-label="Удалить работу">×</button></div>`).join('');
+}
+function renderCNView(){const p=store.price;if(!p||!$('#pl-layout'))return;
+  $$('#pl-layout button').forEach(b=>b.classList.toggle('on',b.dataset.v===(p.layout==='table'?'table':'list')));
+  $('#pl-num').checked=!!p.num;
+  $$('#pl-sec button').forEach(b=>b.classList.toggle('on',b.dataset.v===(['line','band','tab'].includes(p.sec)?p.sec:'')));
+}
+const _rptCN=renderPriceTab;renderPriceTab=function(){_rptCN();cnEnhanceCats();renderCNLib();renderPX();renderCNView()};
+function bindCN(){
+  const tab=$('#tab-price'),catOf=el=>{const ce=el.closest('.pl-cat');return ce&&store.price.cats.find(x=>x.id===ce.dataset.c)};
+  tab.addEventListener('input',e=>{const el=e.target;
+    if(el.matches('[data-cat-note]')){const c=catOf(el);if(c){c.note=el.value;plChanged()}return}
+    if(el.matches('[data-px]')){const X=cnExtra(),r=X.rows.find(x=>x.id===el.closest('.px-row').dataset.x);if(r){r[el.dataset.px]=el.value;plChanged()}return}
+    if(el.id==='px-title'){cnExtra().title=el.value;plChanged();return}
+    if(el.id==='px-note'){cnExtra().note=el.value;plChanged();return}});
+  tab.addEventListener('change',e=>{const el=e.target;
+    if(el.matches('[data-cat-icon]')){const c=catOf(el);if(c){if(el.value)c.icon=el.value;else delete c.icon;plChanged()}return}
+    if(el.matches('[data-cat-on]')){const c=catOf(el);if(c){if(el.checked)delete c.off;else c.off=true;el.closest('.pl-cat').classList.toggle('off',!el.checked);plChanged()}return}
+    if(el.id==='px-on'){cnExtra().on=el.checked;$('#pl-extra').classList.toggle('off',!el.checked);plChanged();return}
+    if(el.id==='px-blank'){cnExtra().blank=+el.value||0;plChanged();return}
+    if(el.id==='px-cta'){cnExtra().cta=el.checked;renderPX();plChanged();return}
+    if(el.id==='pl-num'){store.price.num=el.checked;plChanged();return}});
+  tab.addEventListener('click',e=>{const el=e.target.closest('button');if(!el)return;
+    if(el.matches('[data-cat-down]')){const c=catOf(el),a=store.price.cats,i=a.indexOf(c);if(c&&i<a.length-1){a.splice(i,1);a.splice(i+1,0,c);plChanged();renderPriceTab()}return}
+    if(el.matches('[data-add-sub]')){const c=catOf(el);if(!c)return;c.rows.push({id:uid(),type:'sub',name:''});plChanged();renderPriceTab();const rs=$$(`.pl-cat[data-c="${c.id}"] .pl-row.is-sub .c-name`);if(rs.length)rs[rs.length-1].focus();return}
+    if(el.matches('[data-sel-cat]')){const subs=new Set();store.price.cats.forEach(c=>(c.rows||[]).forEach(r=>{if(r.type==='sub')subs.add(r.id)}));subs.forEach(id=>plSel.delete(id));renderPLSel();return}
+    if(el.id==='px-add'){const X=cnExtra();X.rows.push({id:uid(),name:'',unit:'',price:''});if(!X.on)X.on=true;plChanged();renderPX();const rs=$$('#px-rows .c-name');if(rs.length)rs[rs.length-1].focus();return}
+    if(el.matches('[data-px-del]')){const X=cnExtra();X.rows=X.rows.filter(r=>r.id!==el.closest('.px-row').dataset.x);plChanged();renderPX();return}});
+  $('#pl-layout').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v==='table')store.price.layout='table';else delete store.price.layout;renderCNView();plChanged()};
+  $('#pl-sec').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v)store.price.sec=b.dataset.v;else delete store.price.sec;renderCNView();plChanged()};
+  $('#cn-lib').onclick=e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=b.dataset.k;if(cnPick.has(k))cnPick.delete(k);else cnPick.add(k);renderCNLib()};
+  $('#cn-presets').onclick=e=>{const b=e.target.closest('button');if(!b)return;const p=b.dataset.p;cnPick.clear();(p==='all'?CN_LIB.map(s=>s.k):CN_PRESETS[p]||[]).forEach(k=>cnPick.add(k));renderCNLib()};
+  $('#cn-add').onclick=()=>{const withP=$('#cn-prices').checked,pick=cnPicked(),fresh=pick.filter(s=>!cnInPrice(s.k)),dup=pick.length-fresh.length;
+    if(!fresh.length){setSt($('#cn-st'),'Эти разделы уже есть в прайсе.','err');return}
+    const p=store.price;if(p.demo){p.cats=[];p.demo=false;if(!p.title||p.title==='Прайс-лист')p.title='Прайс на строительные и отделочные работы'}
+    fresh.forEach(s=>p.cats.push(cnSection(s,withP)));cnPick.clear();persist();renderPriceTab();
+    setSt($('#cn-st'),`Добавлено разделов: ${fresh.length}${dup?`, пропущено уже имеющихся: ${dup}`:''}. Они в конце списка — порядок меняется стрелками ↑ ↓.`,'ok')};
+  $('#cn-new').onclick=async()=>{const withP=$('#cn-prices').checked,pick=cnPicked();if(!pick.length)return;const p=store.price;
+    const has=!p.demo&&(p.cats||[]).some(c=>(c.rows||[]).some(r=>String(r.name||'').trim()));
+    if(has&&!(await confirmBox('Собрать новый прайс?','Текущие разделы и позиции прайса будут заменены выбранными разделами работ. Шапка, валюта и размер шрифта останутся.','Заменить',true)))return;
+    const d=new Date(),dd=String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();
+    p.title='Прайс на строительные и отделочные работы';p.subtitle='Цены действительны с '+dd;p.cats=pick.map(s=>cnSection(s,withP));p.demo=false;p.layout='table';p.num=true;delete p.sec;
+    const X=cnExtra();X.on=true;if(!X.title)X.title='Работы по запросу';if(!X.note)X.note=CN_EXTRA_NOTE;
+    if(!CN_KEYS.includes(p.style))cnSetStyle('th-cn-hazard');
+    plSel.clear();cnPick.clear();persist();renderPriceTab();
+    setSt($('#cn-st'),`Готово: ${pick.length} ${pick.length===1?'раздел':pick.length<5?'раздела':'разделов'} работ, стиль «${(skinOf(p.style)||{n:'—'}).n}». Стиль можно сменить слева.`,'ok')};
+}
+const _initUi2CN=initUi2;initUi2=function(){_initUi2CN();bindCN()};
 
 /* ====================== Подключение ====================== */
 (function initUi3(){
